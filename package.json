@@ -1,0 +1,19 @@
+{
+  "name": "validate-changed-files",
+  "version": "1.0.0",
+  "description": "Github action to validate changed files on some commit or pull request",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syeutyu/validate-changed-files.git"
+  },
+  "keywords": [
+    "actions"
+  ],
+  "author": "syeutyu",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "@actions/github": "^4.0.0"
+  }
+}

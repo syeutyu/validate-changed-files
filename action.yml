@@ -1,0 +1,23 @@
+name: "validate changed files"
+description: "Validate changed files"
+author: "syeutyu"
+
+inputs:
+  github-token:
+    description: "The GitHub token used to create an authenticated client."
+    required: true
+  file-names:
+    description: "The File Names used to validate changes."
+    required: true
+
+outputs:
+  success:
+    description: "The success of the validated files."
+
+runs:
+  using: "node12"
+  main: "index.js"
+
+branding:
+  icon: "user-plus"
+  color: "green"

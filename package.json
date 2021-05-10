@@ -11,7 +11,8 @@
     "url": "git+https://github.com/syeutyu/validate-changed-files.git"
   },
   "keywords": [
-    "actions"
+    "actions",
+    "compare"
   ],
   "author": "syeutyu",
   "license": "MIT",

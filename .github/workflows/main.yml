@@ -10,4 +10,5 @@ jobs:
       - name: Run action
         uses: ./ #uses local latest version for testing purposes
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          file-patterns: '["package.json"]'
+          token: ${{ secrets.GITHUB_TOKEN }}

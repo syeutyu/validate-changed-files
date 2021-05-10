@@ -18118,9 +18118,9 @@ async function run() {
   const filePatterns = JSON.parse(
     core.getInput("file-patterns", { required: true })
   );
-  // const comparisonMode = JSON.parse(
-  //   core.getInput("comparison-mode", { required: false })
-  // );
+  const comparisonMode = JSON.parse(
+    core.getInput("comparison-mode", { required: false })
+  );
   // exact
   if (typeof filePatterns !== "object" || !filePatterns.length) {
     core.setFailed("Please fill in the correct file names");
@@ -18156,28 +18156,34 @@ async function run() {
 
   const filesToCheck = await globby(filePatterns);
 
-  console.log({ filesToCheck, changedFileNames });
-
   // let success = false;
-  // if (comparisonMode === "exact") {
-  //   const changedFilesNamesSet = new Set(changedFileNames);
-  // }
+  if (comparisonMode === "exact") {
+    const changedFilesNamesSet = new Set(changedFileNames);
+    const filesToCheckSet = new Set(filesToCheck);
+    if (areSetsEqual(changedFilesNamesSet, filesToCheckSet)) {
+      core.setOutput("success", true);
+    } else {
+      core.setFailed(`Please check your changed files.
+Expected: ${JSON.stringify(Array.from(changedFilesNamesSet), null, 2)}
+Actual: ${JSON.stringify(Array.from(changedFileNames), null, 2)}
+`);
+    }
+  } else if (comparisonMode === "contains") {
+    const isAllIncluded = filePatterns.every(
+      (filePattern) =>
+        !!changedFileNames.find((file) => minimatch(file, filePattern))
+    );
 
-  const isAllIncluded = filePatterns.every(
-    (filePattern) =>
-      !!changedFileNames.find((file) => minimatch(file, filePattern))
-  );
-
-  if (isAllIncluded) {
-    core.setOutput("success", true);
+    if (isAllIncluded) {
+      core.setOutput("success", true);
+    } else {
+      core.setFailed(`Please check your changed files
+Expected: ${JSON.stringify(filePatterns, null, 2)}
+Actual: ${JSON.stringify(changedFileNames, null, 2)}
+`);
+    }
   } else {
-    core.setFailed(`
-      Please check your changed files\nExpected: ${JSON.stringify(
-        filePatterns,
-        null,
-        2
-      )}\nActual: ${JSON.stringify(changedFileNames, null, 2)}
-    `);
+    core.setFailed(`Unsupported comparison mode "${comparisonMode}"`);
   }
 }
 

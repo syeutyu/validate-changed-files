@@ -18154,7 +18154,7 @@ async function run() {
     })
   ).data.files.map((f) => f.filename);
 
-  const filesToCheck = globby(filePatterns);
+  const filesToCheck = await globby(filePatterns);
 
   console.log({ filesToCheck, changedFileNames });
 

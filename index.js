@@ -14,7 +14,6 @@ async function run() {
   const comparisonMode = JSON.parse(
     core.getInput("comparison-mode", { required: false })
   );
-  // exact
   if (typeof filePatterns !== "object" || !filePatterns.length) {
     core.setFailed("Please fill in the correct file names");
   }
@@ -49,7 +48,6 @@ async function run() {
 
   const filesToCheck = await globby(filePatterns);
 
-  // let success = false;
   if (comparisonMode === "exact") {
     const changedFilesNamesSet = new Set(changedFileNames);
     const filesToCheckSet = new Set(filesToCheck);

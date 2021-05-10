@@ -7,8 +7,8 @@ inputs:
     description: "An array of patterns that represent the files that should be included in the PR."
     required: true
   comparison-mode:
-    description: "The way we are checking if files where modified"
-    required: true
+    description: "The way we are checking if files where modified. "
+    required: false
   token:
     description: "The GitHub token used to create an authenticated client."
     required: true

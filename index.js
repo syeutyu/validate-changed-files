@@ -1,17 +1,27 @@
 const core = require("@actions/core");
 const { getOctokit, context } = require("@actions/github");
+const minimatch = require("minimatch");
+const globby = require("globby");
+
+const areSetsEqual = (a, b) =>
+  a.size === b.size && [...a].every((value) => b.has(value));
 
 async function run() {
-  const githubToken = core.getInput("github-token", { required: true });
-  const fileNames = JSON.parse(core.getInput("file-names", { required: true }));
-
-  if (typeof fileNames !== "object" || !fileNames.length) {
+  const githubToken = core.getInput("token", { required: true });
+  const filePatterns = JSON.parse(
+    core.getInput("file-patterns", { required: true })
+  );
+  // const comparisonMode = JSON.parse(
+  //   core.getInput("comparison-mode", { required: false })
+  // );
+  // exact
+  if (typeof filePatterns !== "object" || !filePatterns.length) {
     core.setFailed("Please fill in the correct file names");
   }
 
   const client = getOctokit(githubToken);
 
-  const [ base, head ] = (() => {
+  const [base, head] = (() => {
     if (context.eventName === "pull_request") {
       const pr = context.payload.pull_request;
 
@@ -22,28 +32,44 @@ async function run() {
       const endPoint = compareURL.lastIndexOf("/");
 
       if (endPoint === -1) {
-        core.setFailed("Not found endpoint");
+        core.setFailed("Endpoint not found");
       }
 
       return compareURL.substring(endPoint + 1).split("...");
     }
   })();
 
-  const changedFileNames = (await client.repos.compareCommits({
-    ...context.repo,
-    base,
-    head
-  })).data.files.map(f => f.filename);
+  const changedFileNames = (
+    await client.repos.compareCommits({
+      ...context.repo,
+      base,
+      head,
+    })
+  ).data.files.map((f) => f.filename);
 
-  const isAllIncluded = fileNames.every(fileName =>changedFileNames.includes(fileName));
+  const filesToCheck = globby(filePatterns);
+
+  console.log({ filesToCheck, changedFileNames });
+
+  // let success = false;
+  // if (comparisonMode === "exact") {
+  //   const changedFilesNamesSet = new Set(changedFileNames);
+  // }
+
+  const isAllIncluded = filePatterns.every(
+    (filePattern) =>
+      !!changedFileNames.find((file) => minimatch(file, filePattern))
+  );
 
   if (isAllIncluded) {
     core.setOutput("success", true);
   } else {
     core.setFailed(`
-      Please check your changed files
-      Expect: ${JSON.stringify(fileNames, null, 2)}
-      Actual: ${JSON.stringify(changedFileNames, null, 2)}
+      Please check your changed files\nExpected: ${JSON.stringify(
+        filePatterns,
+        null,
+        2
+      )}\nActual: ${JSON.stringify(changedFileNames, null, 2)}
     `);
   }
 }

@@ -1,13 +1,16 @@
-name: "validate changed files"
-description: "Validate changed files"
-author: "syeutyu"
+name: "Ensure Files Changed"
+description: "Ensure Files Changed"
+author: "fforres"
 
 inputs:
-  github-token:
-    description: "The GitHub token used to create an authenticated client."
+  file-patterns:
+    description: "An array of patterns that represent the files that should be included in the PR."
     required: true
-  file-names:
-    description: "The File Names used to validate changes."
+  comparison-mode:
+    description: "The way we are checking if files where modified."
+    required: true
+  token:
+    description: "The GitHub token used to create an authenticated client."
     required: true
 
 outputs:
@@ -16,8 +19,8 @@ outputs:
 
 runs:
   using: "node12"
-  main: "index.js"
+  main: "dist/index.js"
 
 branding:
-  icon: "user-plus"
+  icon: "git-pull-request"
   color: "green"
